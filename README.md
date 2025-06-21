@@ -115,6 +115,23 @@ description: text {
 }
 ```
 
+> **⚠️ Important:** Text blocks **always require braces** (`text { ... }`), even when using indented block syntax. This prevents ambiguity when multiline text contains colons, tabs, or other characters that could be misinterpreted as TSON syntax.
+
+```tson
+# Safe - no ambiguity possible
+content: text {
+  name: John
+  age: 30
+  	details: sensitive info
+}
+
+# Indented blocks work for other types
+data: table
+  key value
+  a   1
+  b   2
+```
+
 ## 🚀 Installation
 
 ```bash
@@ -204,6 +221,32 @@ name: "Alice"
 - `maptable { ... }` - Table converted to object map
 - `matrix { ... }` - 2D array without headers  
 - `text { ... }` - Multiline string block
+
+> **📝 Text Block Requirements**: Unlike other block types, text blocks **always require braces** for safety. This prevents ambiguity when text content contains TSON syntax characters like colons `:`, tabs, or nested structures.
+
+#### Indented Block Support
+Most block types support both braced and indented syntax:
+
+```tson
+# Braced syntax
+data: table {
+  name age
+  Alice 30
+  Bob 25
+}
+
+# Indented syntax (same result)
+data: table
+  name age
+  Alice 30
+  Bob 25
+
+# Text blocks ALWAYS need braces (for safety)
+content: text {
+  This can contain: colons and	tabs safely
+  Without being misinterpreted as TSON syntax
+}
+```
 
 #### Flexible Delimiters
 - **Tables/Matrices**: Columns separated by spaces or commas

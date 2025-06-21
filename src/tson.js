@@ -135,15 +135,15 @@ export class TSONParser {
         } else {
           currentContext.value[cleanKey] = {};
           this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey });
-        }
-      } else if (bracepart === "" && remainder.trim() === "") {
-        // Handle indented blocks without braces (table, maptable, matrix, array, text)
-        if (type === "array") {
+        }      } else if (bracepart === "" && remainder.trim() === "") {
+        // Handle indented blocks without braces (table, maptable, matrix, array only)
+        // Text blocks always require braces to avoid ambiguity with colons
+        if (type === "text") {
+          this.errors.push(`Text blocks require braces: use 'text { ... }' at line ${this.lineIndex + 1}`);
+          return;
+        } else if (type === "array") {
           currentContext.value[cleanKey] = [];
           this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey, indentedBlock: true });
-        } else if (type === "text") {
-          currentContext.value[cleanKey] = "";
-          this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, targetKey: cleanKey, isTextBlock: true, indentedBlock: true });
         } else {
           currentContext.value[cleanKey] = {};
           this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey, indentedBlock: true });

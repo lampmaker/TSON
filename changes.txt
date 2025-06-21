@@ -1,4 +1,5 @@
 2.2         Initial release; untested; parser only.
 2.2.1       Added support for indented comments (whitespace before #)
 2.2.2       Fixed crash when key has no value (undefined rest parameter)
-2.2.3       Added support for indented blocks without braces (table, maptable, matrix, array, text)
+2.2.3       Added support for indented blocks without braces (table, maptable, matrix, array) - text blocks still require braces
+2.2.4       Added TSONCreator class with configurable settings for serialization, structure detection, and formatting

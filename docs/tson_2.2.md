@@ -72,6 +72,23 @@ description: text {
 }
 ```
 
+> **⚠️ Important:** Text blocks **always require braces** (`text { ... }`), even when using indented block syntax elsewhere. This design choice prevents ambiguity when multiline text contains special characters like colons, tabs, or other TSON syntax that could be misinterpreted.
+
+**Example of why braces are required:**
+```tson
+# Safe - unambiguous with braces
+content: text {
+  name: John Doe
+  age: 30
+  	status: active
+}
+
+# Would be ambiguous without braces - looks like nested object!
+# content: text
+#   name: John Doe
+#   age: 30
+```
+
 ## Syntax Rules
 
 ### Types
@@ -84,8 +101,13 @@ description: text {
 
 ### Braces and Indentation
 - Braced blocks `{ ... }` are the canonical format.
-- Indented blocks may be supported but must be fully consistent.
+- Indented blocks may be supported for most block types but must be fully consistent.
+- **Exception**: Text blocks (`text { ... }`) **always require braces** for safety and unambiguous parsing.
 - Mixed styles are discouraged.
+
+**Indented block support:**
+- ✅ `array`, `table`, `maptable`, `matrix` - support both braced and indented syntax
+- ❌ `text` - always requires braces to prevent ambiguity
 
 ### Delimiters
 - Within tables and matrices:
