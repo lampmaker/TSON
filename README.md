@@ -6,6 +6,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+🌐 **[Try the Interactive Demo](https://lampmaker.github.io/TSON/)** | 📁 **[GitHub Repository](https://github.com/lampmaker/TSON)**
 
 TSON (Typed Structured Object Notation) is a **human-friendly, compact superset of JSON** designed for structured data representation. It introduces concise notation for tables, arrays, and blocks while preserving **full compatibility with JSON**.
 

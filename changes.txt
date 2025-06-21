@@ -1,0 +1,11 @@
+2.2         Initial release; untested; parser only.
+2.2.1       Added support for indented comments (whitespace before #)
+2.2.2       Fixed crash when key has no value (undefined rest parameter)
+2.2.3       Added support for indented blocks without braces (table, maptable, matrix, array) - text blocks still require braces
+2.2.4       Added TSONCreator class with configurable settings for serialization, structure detection, and formatting
+2.2.5       Fixed TSONCreator block type placement - now correctly puts block types directly after colons (key: blocktype)
+2.2.6       Fixed critical indentation parsing bug - nested objects now properly close when indentation decreases
+2.2.7       Fixed array block parsing to support TSON-style objects with unquoted keys and nested arrays
+2.2.8       Fixed TSONCreator nested object indentation bug - eliminated extra indentation on tuesday/thursday issue
+2.2.9       Added configurable indentation to TSONCreator - supports both spaces and tabs with customizable sizing
+2.2.10      Added GitHub repository integration, AI-generated project disclaimers, and GitHub Pages deployment setup
