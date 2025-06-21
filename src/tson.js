@@ -43,12 +43,13 @@ export class TSONParser {
           this.errors.push(`Unexpected closing brace at line ${this.lineIndex + 1}`);
         }
         this.lineIndex++;
-        continue;
-      }if (trimmed.includes(":")) {
+        continue;      }if (trimmed.includes(":")) {
         // Handle comma-separated pairs on the same line (JSON style)
         const pairs = this._splitPairs(trimmed);
         for (const pair of pairs) {
-          const [key, rest] = pair.split(/:(.+)/).map(s => s.trim());
+          const splitResult = pair.split(/:(.+)/);
+          const key = splitResult[0]?.trim() || '';
+          const rest = splitResult[1]?.trim();
           this._processKeyValue(key, rest, indent);
         }
       } else {
@@ -84,10 +85,14 @@ export class TSONParser {
     if (!currentContext || !currentContext.value) {
       this.errors.push(`Invalid context at line ${this.lineIndex + 1}`);
       return;
-    }
-
-    // Handle quoted keys (JSON compatibility)
+    }    // Handle quoted keys (JSON compatibility)
     const cleanKey = this._cleanKey(key);
+
+    // Check if rest is undefined or empty
+    if (rest === undefined || rest === null) {
+      this.errors.push(`Missing value for key "${cleanKey}" at line ${this.lineIndex + 1}`);
+      return;
+    }
 
     if (rest === "{") {
       const newObj = {};

@@ -23,6 +23,14 @@ name: "Alice"
 age: 30
 active: true
 ```
+**Parses to:**
+```javascript
+{
+  name: "Alice",
+  age: 30,
+  active: true
+}
+```
 
 ### Array Blocks
 ```tson
@@ -30,6 +38,12 @@ colors: array {
   red
   green
   blue
+}
+```
+**Parses to:**
+```javascript
+{
+  colors: ["red", "green", "blue"]
 }
 ```
 
@@ -41,7 +55,15 @@ strokes: table {
   11, 22, 0.4;
 }
 ```
-*Parses to array of objects with `x`, `y`, `pressure` properties*
+**Parses to:**
+```javascript
+{
+  strokes: [
+    { x: 10, y: 20, pressure: 0.3 },
+    { x: 11, y: 22, pressure: 0.4 }
+  ]
+}
+```
 
 ### Map Tables
 ```tson
@@ -51,7 +73,15 @@ robots: maptable {
   slow, square, 1;
 }
 ```
-*Parses to `{ fast: {shape: "circle", count: 2}, slow: {shape: "square", count: 1} }`*
+**Parses to:**
+```javascript
+{
+  robots: {
+    fast: { shape: "circle", count: 2 },
+    slow: { shape: "square", count: 1 }
+  }
+}
+```
 
 ### Matrices
 ```tson
@@ -60,7 +90,15 @@ points: matrix {
   4, 5, 6
 }
 ```
-*Parses to `[[1,2,3], [4,5,6]]`*
+**Parses to:**
+```javascript
+{
+  points: [
+    [1, 2, 3],
+    [4, 5, 6]
+  ]
+}
+```
 
 ### Text Blocks
 ```tson
@@ -68,6 +106,12 @@ description: text {
   This is a multiline
   paragraph with no
   quotes or escaping needed.
+}
+```
+**Parses to:**
+```javascript
+{
+  description: "This is a multiline\nparagraph with no\nquotes or escaping needed."
 }
 ```
 

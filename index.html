@@ -1,64 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>TSON Parser - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+        
+        .input-panel, .output-panel {
+            padding: 30px;
+        }
+        
+        .input-panel {
+            border-right: 2px solid #e5e7eb;
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.2em;
+        }
+        
+        #tsonInput {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        #tsonInput:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .example-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .example-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-btn:hover {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        
+        .output-section {
+            margin-bottom: 25px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .status.valid {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .output-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        
+        .json-output {
+            background: #1f2937;
+            color: #f9fafb;
+            border: none;
+        }
+        
+        .error-output {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        
+        .tree-view {
+            background: #f0f9ff;
+            border-color: #bfdbfe;
+        }
+        
+        .tree-item {
+            margin: 2px 0;
+        }
+        
+        .tree-key {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+        
+        .tree-value {
+            color: #059669;
+        }
+        
+        .tree-string {
+            color: #dc2626;
+        }
+        
+        .tree-number {
+            color: #7c2d12;
+        }
+        
+        .tree-boolean {
+            color: #7c3aed;
+        }
+        
+        .tree-null {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .tree-array, .tree-object {
+            color: #374151;
+        }
+        
+        .indent {
+            margin-left: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-panel {
+                border-right: none;
+                border-bottom: 2px solid #e5e7eb;
+            }
+            
+            #tsonInput {
+                height: 250px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <h1>📘 TSON Parser</h1>
+            <p class="subtitle">Interactive Typed Structured Object Notation Parser</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-panel">
+                <h2 class="panel-title">
+                    <span class="icon">✏️</span>
+                    TSON Input
+                </h2>
+                <textarea 
+                    id="tsonInput" 
+                    placeholder="Enter your TSON here...
+
+Example:
+name: &quot;Alice&quot;
+age: 30
+colors: array {
+  red
+  green
+  blue
+}
+scores: table {
+  subject, grade;
+  math, 95;
+  english, 87;
+}"
+                ></textarea>
+                
+                <div class="example-buttons">
+                    <button class="example-btn" onclick="loadExample('basic')">Basic</button>
+                    <button class="example-btn" onclick="loadExample('array')">Array</button>
+                    <button class="example-btn" onclick="loadExample('table')">Table</button>
+                    <button class="example-btn" onclick="loadExample('maptable')">Maptable</button>
+                    <button class="example-btn" onclick="loadExample('matrix')">Matrix</button>
+                    <button class="example-btn" onclick="loadExample('text')">Text</button>
+                    <button class="example-btn" onclick="loadExample('complex')">Complex</button>
+                </div>
+            </div>
+            
+            <div class="output-panel">
+                <div class="output-section">
+                    <h2 class="panel-title">
+                        <span class="icon">📊</span>
+                        Parse Status
+                    </h2>
+                    <div id="status" class="status valid">Ready</div>
+                </div>
+                
+                <div class="output-section">
+                    <h3 class="panel-title">
+                        <span class="icon">🔧</span>
+                        JSON Output
+                    </h3>
+                    <div id="jsonOutput" class="output-box json-output">{}</div>
+                </div>
+                
+                <div class="output-section">
+                    <h3 class="panel-title">
+                        <span class="icon">🌳</span>
+                        Object Tree
+                    </h3>
+                    <div id="treeOutput" class="output-box tree-view">No data</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { TSONParser } from './src/tson.js';
 
-        const TSON = new TSONParser();
+        const parser = new TSONParser();
+        const tsonInput = document.getElementById('tsonInput');
+        const statusEl = document.getElementById('status');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const treeOutput = document.getElementById('treeOutput');
 
-        const tsonText = `
-robot: {
-  name: Vinny
-  speed: 12.5
-  blending: true
+        const examples = {
+            basic: `name: "Alice"
+age: 30
+active: true
+score: null`,
+
+            array: `colors: array {
+  red
+  green
+  blue
+  yellow
 }
+numbers: [1, 2, 3, 4]`,
 
-layers:
-    base:
-        color: white
-        strokes: table {
-            x, y, pressure;
-            10, 20, 0.3;
-            11, 22, 0.4;
+            table: `students: table {
+  name, math, english, science;
+  Alice, 95, 87, 92;
+  Bob, 82, 91, 88;
+  Charlie, 78, 85, 94;
+}`,
+
+            maptable: `robots: maptable {
+  id, shape, speed, color;
+  fast, circle, 10, red;
+  slow, square, 5, blue;
+  medium, triangle, 7, green;
+}`,
+
+            matrix: `grid: matrix {
+  1, 0, 1, 0
+  0, 1, 0, 1
+  1, 1, 0, 0
+  0, 0, 1, 1
+}`,
+
+            text: `description: text {
+  This is a multiline
+  text block that can contain
+  any kind of content without
+  needing to escape quotes or
+  special characters.
+}
+note: "Single line text"`,
+
+            complex: `# Complex nested example
+game: {
+  name: "Space Adventure"
+  version: 2.1
+  
+  players: array {
+    "Alice"
+    "Bob"
+    "Charlie"
+  }
+  
+  scores: table {
+    player, level1, level2, total;
+    Alice, 1500, 2300, 3800;
+    Bob, 1200, 1800, 3000;
+    Charlie, 1800, 2100, 3900;
+  }
+  
+  settings: {
+    difficulty: "hard"
+    sound: true
+    graphics: "high"
+  }
+  
+  changelog: text {
+    v2.1: Added new levels
+    v2.0: Major gameplay update
+    v1.5: Bug fixes and improvements
+  }
+}`
+        };
+
+        function renderTree(obj, indent = 0) {
+            if (obj === null) {
+                return `<span class="tree-null">null</span>`;
+            }
+            
+            if (typeof obj === 'string') {
+                return `<span class="tree-string">"${obj}"</span>`;
+            }
+            
+            if (typeof obj === 'number') {
+                return `<span class="tree-number">${obj}</span>`;
+            }
+            
+            if (typeof obj === 'boolean') {
+                return `<span class="tree-boolean">${obj}</span>`;
+            }
+            
+            if (Array.isArray(obj)) {
+                if (obj.length === 0) {
+                    return `<span class="tree-array">[]</span>`;
+                }
+                
+                let result = `<span class="tree-array">[</span>\n`;
+                obj.forEach((item, index) => {
+                    result += `<div class="tree-item" style="margin-left: ${(indent + 1) * 20}px">`;
+                    result += `<span class="tree-key">[${index}]:</span> `;
+                    result += renderTree(item, indent + 1);
+                    result += `</div>`;
+                });
+                result += `<div style="margin-left: ${indent * 20}px"><span class="tree-array">]</span></div>`;
+                return result;
+            }
+            
+            if (typeof obj === 'object') {
+                const keys = Object.keys(obj);
+                if (keys.length === 0) {
+                    return `<span class="tree-object">{}</span>`;
+                }
+                
+                let result = `<span class="tree-object">{</span>\n`;
+                keys.forEach(key => {
+                    result += `<div class="tree-item" style="margin-left: ${(indent + 1) * 20}px">`;
+                    result += `<span class="tree-key">${key}:</span> `;
+                    result += renderTree(obj[key], indent + 1);
+                    result += `</div>`;
+                });
+                result += `<div style="margin-left: ${indent * 20}px"><span class="tree-object">}</span></div>`;
+                return result;
+            }
+            
+            return String(obj);
         }
-robottypes: maptable {
-        id  shape   count
-        none circle  0
-        fast    green   2
-        slow    red     121
-    }            
-        
-`;
 
-        const errors = TSON.check(tsonText);
+        function parseTSON() {
+            const input = tsonInput.value.trim();
+            
+            if (!input) {
+                statusEl.textContent = 'Ready';
+                statusEl.className = 'status valid';
+                jsonOutput.textContent = '{}';
+                treeOutput.innerHTML = 'No data';
+                return;
+            }
+            
+            // Check for errors
+            const errors = parser.check(input);
+            
+            if (errors.length > 0) {
+                statusEl.textContent = `${errors.length} Error${errors.length > 1 ? 's' : ''}`;
+                statusEl.className = 'status error';
+                jsonOutput.textContent = errors.join('\n');
+                jsonOutput.className = 'output-box error-output';
+                treeOutput.innerHTML = '<span class="tree-null">Parse failed</span>';
+                return;
+            }
+            
+            // Parse the input
+            const result = parser.parse(input);
+            
+            if (result === null) {
+                statusEl.textContent = 'Parse Error';
+                statusEl.className = 'status error';
+                jsonOutput.textContent = 'Parse failed - check syntax';
+                jsonOutput.className = 'output-box error-output';
+                treeOutput.innerHTML = '<span class="tree-null">Parse failed</span>';
+                return;
+            }
+            
+            // Success
+            statusEl.textContent = '✅ Valid TSON';
+            statusEl.className = 'status valid';
+            jsonOutput.textContent = JSON.stringify(result, null, 2);
+            jsonOutput.className = 'output-box json-output';
+            treeOutput.innerHTML = renderTree(result);
+        }
 
-        console.log(errors.length === 0 ? '✅ Valid TSON' : '❌ Errors:', errors);
+        window.loadExample = function(type) {
+            tsonInput.value = examples[type];
+            parseTSON();
+        };
 
-        const result = TSON.parse(tsonText);
-        console.log('Parsed Result:', result);
+        // Parse on input change
+        tsonInput.addEventListener('input', parseTSON);
 
-
-
-
+        // Load basic example on start
+        loadExample('basic');
     </script>
-
-
-
-
-
-
-
-
-
-
 </body>
-
 </html>

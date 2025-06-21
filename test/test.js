@@ -84,8 +84,9 @@ let passed = 0;
 let failed = 0;
 
 testCases.forEach((test, index) => {
+    console.log('=============================================');
   console.log(`Test ${index + 1}: ${test.name}`);
-  console.log(`Input:\n${test.input}`);
+  console.log(`Input:\n----------------------\n${test.input}\n---------`);
   
   // Check for errors
   const errors = parser.check(test.input);
