@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script type="module">
+        import { TSONParser } from './src/tson.js';
+
+        const TSON = new TSONParser();
+
+        const tsonText = `
+robot: {
+  name: Vinny
+  speed: 12.5
+  blending: true
+}
+
+layers:
+    base:
+        color: white
+        strokes: table {
+            x, y, pressure;
+            10, 20, 0.3;
+            11, 22, 0.4;
+        }
+robottypes: maptable {
+        id  shape   count
+        none circle  0
+        fast    green   2
+        slow    red     121
+    }            
+        
+`;
+
+        const errors = TSON.check(tsonText);
+
+        console.log(errors.length === 0 ? '✅ Valid TSON' : '❌ Errors:', errors);
+
+        const result = TSON.parse(tsonText);
+        console.log('Parsed Result:', result);
+
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>

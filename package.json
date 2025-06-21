@@ -1,0 +1,24 @@
+{
+  "name": "tson",
+  "version": "2.2.0",
+  "description": "TSON (Typed Structured Object Notation) - A human-friendly superset of JSON",
+  "type": "module",
+  "main": "src/tson.js",
+  "scripts": {
+    "test": "node test/test.js",
+    "start": "node index.html"
+  },
+  "keywords": [
+    "json",
+    "parser",
+    "tson",
+    "structured-data",
+    "table",
+    "matrix"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
