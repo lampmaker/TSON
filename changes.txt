@@ -4,3 +4,5 @@
 2.2.3       Added support for indented blocks without braces (table, maptable, matrix, array) - text blocks still require braces
 2.2.4       Added TSONCreator class with configurable settings for serialization, structure detection, and formatting
 2.2.5       Fixed TSONCreator block type placement - now correctly puts block types directly after colons (key: blocktype)
+2.2.6       Fixed critical indentation parsing bug - nested objects now properly close when indentation decreases
+2.2.7       Fixed array block parsing to support TSON-style objects with unquoted keys and nested arrays

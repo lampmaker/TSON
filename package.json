@@ -1,6 +1,6 @@
 {
   "name": "tson",
-  "version": "2.2.0",
+  "version": "2.2.7",
   "description": "TSON (Typed Structured Object Notation) - A human-friendly superset of JSON",
   "type": "module",
   "main": "src/tson.js",  "scripts": {

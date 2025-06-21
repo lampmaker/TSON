@@ -46,8 +46,12 @@ export class TSONParser {
         continue;      }      // FIXED: Always check indentation context before processing any line
       this._adjustContextStack(indent);
 
-      if (trimmed.includes(":")) {
-        // Handle comma-separated pairs on the same line (JSON style)
+      // FIXED: Check current context to determine how to process the line
+      const currentContext = this._currentContext();
+      const isInTypedBlock = currentContext && currentContext.type;
+      
+      if (trimmed.includes(":") && !isInTypedBlock) {
+        // Handle comma-separated pairs on the same line (JSON style) - only when NOT in a typed block
         const pairs = this._splitPairs(trimmed);
         for (const pair of pairs) {
           const splitResult = pair.split(/:(.+)/);
@@ -56,6 +60,7 @@ export class TSONParser {
           this._processKeyValue(key, rest, indent);
         }
       } else {
+        // Send to continuation handler (for array content, table content, or regular indented objects)
         this._processContinuation(indent, trimmed);
       }this.lineIndex++;
     }
@@ -246,26 +251,47 @@ export class TSONParser {
       return null;
     }
     return this.contextStack[this.contextStack.length - 1];
-  }
-  _autoConvert(value) {
+  }  _autoConvert(value) {
     if (value === undefined || value === null) return null;
     
+    const trimmed = value.trim();
+    
+    // ENHANCED: Handle JSON objects and arrays
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        // Try to parse as standard JSON first
+        return JSON.parse(trimmed);
+      } catch (e) {
+        // If that fails, try to parse TSON-style unquoted keys
+        return this._parseTSONObject(trimmed);
+      }
+    }
+    
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch (e) {
+        // Could add TSON-style array parsing here if needed
+        return trimmed; // Fall back to string
+      }
+    }
+    
     // Handle quoted strings (JSON compatibility)
-    if ((value.startsWith('"') && value.endsWith('"')) || 
-        (value.startsWith("'") && value.endsWith("'"))) {
-      return value.slice(1, -1);
+    if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || 
+        (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+      return trimmed.slice(1, -1);
     }
     
     // Handle boolean and null literals
-    if (value === "null") return null;
-    if (value === "true") return true;
-    if (value === "false") return false;
+    if (trimmed === "null") return null;
+    if (trimmed === "true") return true;
+    if (trimmed === "false") return false;
     
     // Handle numbers
-    const num = Number(value);
+    const num = Number(trimmed);
     if (!isNaN(num) && isFinite(num)) return num;
     
-    return value;
+    return trimmed;
   }
   _cleanKey(key) {
     // Remove quotes from keys (JSON compatibility)
@@ -495,5 +521,73 @@ export class TSONParser {
     
     // For regular object contexts, pop if at same or lower indentation
     return currentIndent <= ctx.indent;
+  }
+
+  // ENHANCED: Parse TSON objects with unquoted keys
+  _parseTSONObject(objectStr) {
+    const content = objectStr.slice(1, -1).trim(); // Remove braces
+    const result = {};
+    
+    if (!content) return result;
+    
+    // Split by commas, but respect nested structures
+    const pairs = this._splitObjectPairs(content);
+    
+    for (const pair of pairs) {
+      const colonIndex = pair.indexOf(':');
+      if (colonIndex > 0) {
+        const key = pair.substring(0, colonIndex).trim();
+        const value = pair.substring(colonIndex + 1).trim();
+        
+        // Clean key (remove quotes if present)
+        const cleanKey = this._cleanKey(key);
+        
+        // Parse value recursively
+        result[cleanKey] = this._autoConvert(value);
+      }
+    }
+    
+    return result;
+  }
+
+  // ENHANCED: Split object pairs respecting nesting
+  _splitObjectPairs(content) {
+    const pairs = [];
+    let current = '';
+    let depth = 0;
+    let inQuotes = false;
+    let quoteChar = '';
+    
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i];
+      
+      if (!inQuotes && (char === '"' || char === "'")) {
+        inQuotes = true;
+        quoteChar = char;
+        current += char;
+      } else if (inQuotes && char === quoteChar) {
+        inQuotes = false;
+        current += char;
+      } else if (!inQuotes && (char === '{' || char === '[')) {
+        depth++;
+        current += char;
+      } else if (!inQuotes && (char === '}' || char === ']')) {
+        depth--;
+        current += char;
+      } else if (!inQuotes && char === ',' && depth === 0) {
+        if (current.trim()) {
+          pairs.push(current.trim());
+        }
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    if (current.trim()) {
+      pairs.push(current.trim());
+    }
+    
+    return pairs;
   }
 }
