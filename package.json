@@ -7,7 +7,8 @@
     "test": "node test/test.js",
     "test:comprehensive": "node test/comprehensive-test.js",
     "test:errors": "node test/error-test.js",
-    "test:all": "npm test && npm run test:comprehensive && npm run test:errors",
+    "test:indented": "node test/indented-test.js",
+    "test:all": "npm test && npm run test:comprehensive && npm run test:indented && npm run test:errors",
     "start": "node index.html"
   },
   "keywords": [

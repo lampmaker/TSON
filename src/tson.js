@@ -108,8 +108,7 @@ export class TSONParser {
         // Parse array content
         const items = this._parseArrayContent(arrayContent);
         currentContext.value[cleanKey] = items;
-      }
-    } else if (/^(array|table|maptable|matrix|text)/.test(rest.trim())) {
+      }    } else if (/^(array|table|maptable|matrix|text)/.test(rest.trim())) {
       const trimmedRest = rest.trim();
       const match = trimmedRest.match(/^(array|table|maptable|matrix|text)(\s*\{\s*\}|\s*\{)?(.*)$/);
       const type = match[1];
@@ -124,7 +123,8 @@ export class TSONParser {
           currentContext.value[cleanKey] = "";
         } else {
           currentContext.value[cleanKey] = {};
-        }      } else if (bracepart.includes("{") && remainder.trim() === "") {
+        }
+      } else if (bracepart.includes("{") && remainder.trim() === "") {
         // Handle non-empty structures with opening brace
         if (type === "array") {
           currentContext.value[cleanKey] = [];
@@ -135,6 +135,18 @@ export class TSONParser {
         } else {
           currentContext.value[cleanKey] = {};
           this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey });
+        }
+      } else if (bracepart === "" && remainder.trim() === "") {
+        // Handle indented blocks without braces (table, maptable, matrix, array, text)
+        if (type === "array") {
+          currentContext.value[cleanKey] = [];
+          this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey, indentedBlock: true });
+        } else if (type === "text") {
+          currentContext.value[cleanKey] = "";
+          this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, targetKey: cleanKey, isTextBlock: true, indentedBlock: true });
+        } else {
+          currentContext.value[cleanKey] = {};
+          this.contextStack.push({ indent, key: cleanKey, value: currentContext.value, type, rows: [], headers: null, targetKey: cleanKey, indentedBlock: true });
         }
       } else {
         // Handle inline structures like "array { 100, 70 }"
@@ -224,13 +236,26 @@ export class TSONParser {
       ctx.headers = cells;
     } else if (cells.length > 0) {
       ctx.rows.push(cells);
-    }// Check if this is the end of the block
+    }    // Check if this is the end of the block
     const nextLine = this.lines[this.lineIndex + 1];
     const nextTrimmed = nextLine ? nextLine.trim() : "";
-    const blockEnd = !nextLine || 
-                    nextTrimmed === "}" || 
-                    nextTrimmed === "]" ||
-                    (nextLine && nextTrimmed && !nextLine.startsWith(" ") && !nextLine.startsWith("\t") && nextTrimmed.length > 0 && !nextTrimmed.startsWith("#"));    if (blockEnd && ((ctx.headers && !ctx.isTextBlock) || (type === "matrix" && ctx.rows.length > 0))) {
+    const nextIndent = nextLine ? nextLine.match(/^\s*/)[0].length : 0;
+    
+    let blockEnd = false;
+    
+    if (ctx.indentedBlock) {
+      // For indented blocks, end when indentation decreases or at end of file
+      blockEnd = !nextLine || 
+                 nextTrimmed === "" ||
+                 nextTrimmed.startsWith("#") ||
+                 nextIndent <= ctx.indent;
+    } else {
+      // For braced blocks, end at closing brace or explicit markers
+      blockEnd = !nextLine || 
+                 nextTrimmed === "}" || 
+                 nextTrimmed === "]" ||
+                 (nextLine && nextTrimmed && !nextLine.startsWith(" ") && !nextLine.startsWith("\t") && nextTrimmed.length > 0 && !nextTrimmed.startsWith("#"));
+    }if (blockEnd && ((ctx.headers && !ctx.isTextBlock) || (type === "matrix" && ctx.rows.length > 0))) {
       this._finalizeTypedBlock(ctx);
       // Don't pop context here - let the closing brace or natural end handle it
     }
