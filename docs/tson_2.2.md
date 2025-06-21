@@ -190,6 +190,51 @@ WS          ::= /[ \t]*/
 TEXT_CONTENT::= /.*/ (multiline string)
 ```
 
+## 🔄 TSONCreator - Bidirectional Conversion
+
+Starting with v2.2.4, TSON includes a `TSONCreator` class for converting JavaScript objects back to TSON format.
+
+### Features
+- **Structure Detection**: Automatically converts arrays of objects to tables
+- **Matrix Recognition**: Detects 2D numeric arrays and formats as matrices  
+- **Configurable Formatting**: Customizable indentation, quoting, and block styles
+- **Indentation Options**: Supports both spaces and tabs with configurable sizing (v2.2.9+)
+
+### Usage
+```javascript
+import { TSONCreator } from 'tson/creator';
+
+const creator = new TSONCreator({
+  indentType: 'spaces',     // 'spaces' | 'tabs'
+  indentSize: 2,            // number of spaces
+  blockStyle: 'indented',   // 'indented' | 'braced'
+  arrayThreshold: 3         // convert to array block if >=3 items
+});
+
+const jsObject = {
+  name: 'Alice',
+  scores: [95, 87, 92, 88, 91],
+  data: [
+    { x: 1, y: 2 },
+    { x: 3, y: 4 }
+  ]
+};
+
+console.log(creator.stringify(jsObject));
+// Output:
+// name: Alice
+// scores: array
+//   95
+//   87
+//   92
+//   88
+//   91
+// data: table
+//   x y
+//   1 2
+//   3 4
+```
+
 ---
 
 Let me know if you want this exported as a Markdown spec, HTML page, or JSON-based formal grammar for tooling (e.g., JSON Schema, PEG.js, or ANTLR).

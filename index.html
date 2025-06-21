@@ -1,3 +1,9 @@
+<!--
+  AI-Generated Project: This project was realized as a test of GitHub Copilot Agent, and as such, 99% of the code, documentation and is AI-generated. It demonstrates the capabilities of AI-assisted software development for creating complete, functional programming language implementations.
+  IN OTHER WORDS: Use at your own risk — lampmaker
+  
+  GitHub: https://github.com/lampmaker/TSON
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,13 +95,8 @@
             gap: 0;
             min-height: 600px;
         }
-        
-        .input-panel, .output-panel {
+          .input-panel, .output-panel {
             padding: 30px;
-        }
-        
-        .input-panel {
-            border-right: 2px solid #e5e7eb;
         }
         
         .panel-title {
@@ -303,10 +304,18 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <div class="container">        <header>
             <h1>📘 TSON Interactive Demo</h1>
             <p class="subtitle">Parse TSON or Create TSON from JavaScript Objects</p>
+            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                <strong>AI-Generated Project:</strong> This project was realized as a test of GitHub Copilot Agent. 99% of the code and documentation is AI-generated.<br>
+                <strong>IN OTHER WORDS:</strong> Use at your own risk — lampmaker
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="https://github.com/lampmaker/TSON" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: bold;">
+                    🔗 View on GitHub
+                </a>
+            </p>
         </header>
         
         <div class="tab-nav">
@@ -344,19 +353,20 @@ scores: table {
   english, 87;
 }"
                     ></textarea>
-                    
-                    <div class="example-buttons">
+                      <div class="example-buttons">
                         <button class="example-btn" onclick="loadParseExample('basic')">Basic</button>
                         <button class="example-btn" onclick="loadParseExample('array')">Array</button>
                         <button class="example-btn" onclick="loadParseExample('table')">Table</button>
                         <button class="example-btn" onclick="loadParseExample('maptable')">Maptable</button>
                         <button class="example-btn" onclick="loadParseExample('matrix')">Matrix</button>
                         <button class="example-btn" onclick="loadParseExample('text')">Text</button>
+                        <button class="example-btn" onclick="loadParseExample('indented')">Indented</button>
+                        <button class="example-btn" onclick="loadParseExample('mixed')">Mixed</button>
+                        <button class="example-btn" onclick="loadParseExample('comments')">Comments</button>
                         <button class="example-btn" onclick="loadParseExample('complex')">Complex</button>
                     </div>
                 </div>
-                
-                <div class="output-panel">
+                  <div class="output-panel">
                     <div class="output-section">
                         <h2 class="panel-title">
                             <span class="icon">📊</span>
@@ -366,19 +376,16 @@ scores: table {
                     </div>
                     
                     <div class="output-section">
-                        <h3 class="panel-title">
+                        <div class="panel-title">
                             <span class="icon">🔧</span>
-                            JSON Output
-                        </h3>
+                            Parse Output
+                            <select id="parseOutputType" style="margin-left: 10px; font-size: 12px;">
+                                <option value="json">JSON</option>
+                                <option value="tree">Object Tree</option>
+                            </select>
+                        </div>
                         <div id="jsonOutput" class="output-box json-output">{}</div>
-                    </div>
-                    
-                    <div class="output-section">
-                        <h3 class="panel-title">
-                            <span class="icon">🌳</span>
-                            Object Tree
-                        </h3>
-                        <div id="treeOutput" class="output-box tree-view">No data</div>
+                        <div id="treeOutput" class="output-box tree-view" style="display: none;">No data</div>
                     </div>
                 </div>
             </div>
@@ -413,8 +420,7 @@ Example:
                     
                     <div class="settings-panel">
                         <div class="settings-title">TSON Creator Settings</div>
-                        
-                        <div class="settings-row">
+                          <div class="settings-row">
                             <div class="setting-item">
                                 <label>Block Style:</label>
                                 <select id="blockStyle">
@@ -422,18 +428,42 @@ Example:
                                     <option value="braced">Braced</option>
                                 </select>
                             </div>
-                            
-                            <div class="setting-item">
+                              <div class="setting-item">
                                 <label>Table Delimiter:</label>
                                 <select id="tableDelimiter">
                                     <option value="space">Space</option>
                                     <option value="comma">Comma</option>
+                                    <option value="tab">Tab</option>
                                 </select>
                             </div>
                             
                             <div class="setting-item">
                                 <label>Quote Keys:</label>
                                 <select id="quoteKeys">
+                                    <option value="minimal">Minimal</option>
+                                    <option value="always">Always</option>
+                                    <option value="never">Never</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-row">
+                            <div class="setting-item">
+                                <label>Indent Type:</label>
+                                <select id="indentType">
+                                    <option value="spaces">Spaces</option>
+                                    <option value="tabs">Tabs</option>
+                                </select>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <label>Indent Size:</label>
+                                <input type="number" id="indentSize" value="2" min="1" max="8">
+                            </div>
+                            
+                            <div class="setting-item">
+                                <label>Quote Values:</label>
+                                <select id="quoteValues">
                                     <option value="minimal">Minimal</option>
                                     <option value="always">Always</option>
                                     <option value="never">Never</option>
@@ -457,18 +487,20 @@ Example:
                                 <input type="checkbox" id="fillMissing">
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="example-buttons">
+                    </div>                    <div class="example-buttons">
                         <button class="example-btn" onclick="loadCreateExample('simple')">Simple Object</button>
                         <button class="example-btn" onclick="loadCreateExample('table')">Table Data</button>
                         <button class="example-btn" onclick="loadCreateExample('maptable')">Map Table</button>
                         <button class="example-btn" onclick="loadCreateExample('matrix')">Matrix</button>
+                        <button class="example-btn" onclick="loadCreateExample('nested')">Nested Objects</button>
+                        <button class="example-btn" onclick="loadCreateExample('arrays')">Arrays</button>
+                        <button class="example-btn" onclick="loadCreateExample('ecommerce')">E-commerce</button>
+                        <button class="example-btn" onclick="loadCreateExample('config')">Configuration</button>
+                        <button class="example-btn" onclick="loadCreateExample('scientific')">Scientific</button>
                         <button class="example-btn" onclick="loadCreateExample('complex')">Complex</button>
                     </div>
                 </div>
-                
-                <div class="output-panel">
+                  <div class="output-panel">
                     <div class="output-section">
                         <h2 class="panel-title">
                             <span class="icon">📊</span>
@@ -486,11 +518,16 @@ Example:
                     </div>
                     
                     <div class="output-section">
-                        <h3 class="panel-title">
+                        <div class="panel-title">
                             <span class="icon">🔄</span>
                             Parsed Back (Verification)
-                        </h3>
+                            <select id="verifyOutputType" style="margin-left: 10px; font-size: 12px;">
+                                <option value="json">JSON</option>
+                                <option value="tree">Object Tree</option>
+                            </select>
+                        </div>
                         <div id="verifyOutput" class="output-box json-output">{}</div>
+                        <div id="verifyTreeOutput" class="output-box tree-view" style="display: none;">No data</div>
                     </div>
                 </div>
             </div>
@@ -502,9 +539,7 @@ Example:
         import { TSONCreator } from './src/tson-creator.js';
 
         const parser = new TSONParser();
-        let creator = new TSONCreator();
-
-        // Elements
+        let creator = new TSONCreator();        // Elements
         const tsonInput = document.getElementById('tsonInput');
         const jsInput = document.getElementById('jsInput');
         const parseStatus = document.getElementById('parseStatus');
@@ -513,11 +548,15 @@ Example:
         const treeOutput = document.getElementById('treeOutput');
         const tsonOutput = document.getElementById('tsonOutput');
         const verifyOutput = document.getElementById('verifyOutput');
-
-        // Settings elements
+        const verifyTreeOutput = document.getElementById('verifyTreeOutput');
+        const parseOutputType = document.getElementById('parseOutputType');
+        const verifyOutputType = document.getElementById('verifyOutputType');// Settings elements
         const blockStyleSelect = document.getElementById('blockStyle');
         const tableDelimiterSelect = document.getElementById('tableDelimiter');
         const quoteKeysSelect = document.getElementById('quoteKeys');
+        const quoteValuesSelect = document.getElementById('quoteValues');
+        const indentTypeSelect = document.getElementById('indentType');
+        const indentSizeInput = document.getElementById('indentSize');
         const arrayThresholdInput = document.getElementById('arrayThreshold');
         const tableThresholdInput = document.getElementById('tableThreshold');
         const fillMissingCheckbox = document.getElementById('fillMissing');
@@ -541,28 +580,44 @@ active: true
 workdays:
   monday:true
   tuesday:false
-score: null`,
-
-            array: `colors: array {
+score: null`,            array: `colors: array {
   red
   green
   blue
   yellow
 }
-numbers: [1, 2, 3, 4]`,
+numbers: [1, 2, 3, 4]
+mixed: array {
+  "text"
+  42
+  true
+  null
+}`,
 
             table: `students: table {
   name, math, english, science;
   Alice, 95, 87, 92;
   Bob, 82, 91, 88;
   Charlie, 90, 85, 94;
-}`,
+}
+# Space-separated table
+inventory: table
+  item quantity price
+  apple 50 1.20
+  orange 30 1.50
+  banana 25 0.80`,
 
             maptable: `robots: maptable {
   id, shape, speed;
   fast, circle, 10;
   slow, square, 5;
   medium, triangle, 7;
+}
+# Comma-separated maptable
+database: maptable {
+  key, host, port, active;
+  primary, server1.com, 5432, true;
+  backup, server2.com, 5433, false;
 }`,
 
             matrix: `points: matrix {
@@ -574,7 +629,12 @@ identity: matrix {
   1 0 0
   0 1 0
   0 0 1
-}`,
+}
+# 2D coordinates
+coordinates: matrix
+  10.5 20.3
+  15.7 25.1
+  30.2 40.8`,
 
             text: `config: {
   name: "My App"
@@ -584,9 +644,18 @@ identity: matrix {
     and contains no quotes
   }
   version: "1.0"
-}`,
-
-            complex: `game: {
+}
+# Text with special characters
+documentation: text {
+  API Usage:
+  POST /api/users
+  {
+    "name": "John",
+    "email": "john@example.com"
+  }
+  
+  Returns: 201 Created
+}`,            complex: `game: {
   metadata: {
     title: "Space Adventure"
     version: "2.1"
@@ -607,7 +676,74 @@ identity: matrix {
     0 1 0 1
     1 0 1 0
   }
-}`
+}`,
+
+            indented: `# Indented blocks without braces
+project:
+  name: "TSON Parser"
+  version: "2.2"
+  dependencies: array
+    lodash
+    express
+    moment
+  
+  team: table
+    name role experience
+    Alice lead 5
+    Bob dev 3
+    Charlie qa 2
+    
+  settings:
+    debug: true
+    timeout: 30
+    logging:
+      level: "info"
+      file: "/var/log/app.log"`,
+
+            mixed: `# Mixed JSON and TSON syntax
+api_config: {
+  "endpoints": [
+    {"path": "/users", "method": "GET"},
+    {"path": "/posts", "method": "POST"}
+  ],
+  database: {
+    host: "localhost",
+    credentials: table {
+      env, user, password;
+      dev, dev_user, dev_pass;
+      prod, prod_user, prod_pass;
+    }
+  },
+  features: array {
+    "authentication"
+    "rate_limiting"  
+    "caching"
+  }
+}`,
+
+            comments: `# Full line comments work
+name: "Alice"  # End of line comments NOT!
+
+# Nested objects with comments
+user:
+  # Personal info
+  name: "Bob"
+  age: 25
+  
+  # Contact details  
+  contact:
+    email: "bob@example.com"
+    phone: "+1-555-0123"
+    
+  # Preferences array
+  preferences: array {
+    # UI settings
+    "dark_mode"
+    "notifications"
+    
+    # Privacy settings  
+    "private_profile"
+  }`
         };
 
         // Create examples
@@ -633,9 +769,7 @@ identity: matrix {
     slow: { shape: 'square', speed: 5 },
     medium: { shape: 'triangle', speed: 7 }
   }
-}`,
-
-            matrix: `{
+}`,            matrix: `{
   transform: [
     [1, 0, 0],
     [0, 1, 0],
@@ -647,7 +781,14 @@ identity: matrix {
   ]
 }`,
 
-            complex: `{
+            nested: `{
+  name: 'Alice',
+  age: 30,
+  active: true,
+  score: null,
+  workdays: { monday: true, tuesday: false, thursday: 1 },
+  accounts: [3, 4, 5]
+}`,            complex: `{
   game: {
     metadata: {
       title: 'Space Adventure',
@@ -664,6 +805,81 @@ identity: matrix {
       [0, 1, 0, 1],
       [1, 0, 1, 0]
     ]
+  }
+}`,
+
+            arrays: `{
+  colors: ['red', 'green', 'blue'],
+  numbers: [1, 2, 3, 4, 5, 6, 7, 8],
+  mixed: ['text', 42, true, null, { key: 'value' }],
+  nested: [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ]
+}`,
+
+            ecommerce: `{
+  store: {
+    name: 'Tech Store',
+    location: 'San Francisco',
+    products: [
+      { id: 1, name: 'Laptop', price: 999.99, inStock: true },
+      { id: 2, name: 'Mouse', price: 29.99, inStock: false },
+      { id: 3, name: 'Keyboard', price: 79.99, inStock: true },
+      { id: 4, name: 'Monitor', price: 299.99, inStock: true }
+    ],
+    categories: {
+      computers: { id: 1, description: 'Computing devices' },
+      accessories: { id: 2, description: 'Computer accessories' }
+    }
+  }
+}`,
+
+            config: `{
+  application: {
+    name: 'MyApp',
+    version: '2.1.0',
+    environment: 'production',
+    database: {
+      host: 'localhost',
+      port: 5432,
+      name: 'myapp_db',
+      credentials: [
+        { env: 'dev', user: 'dev_user', password: 'dev_pass' },
+        { env: 'prod', user: 'prod_user', password: 'prod_pass' }
+      ]
+    },
+    features: ['auth', 'logging', 'cache'],
+    monitoring: {
+      enabled: true,
+      endpoints: ['health', 'metrics'],
+      intervals: [30, 60, 300]
+    }
+  }
+}`,
+
+            scientific: `{
+  experiment: {
+    name: 'Particle Physics Simulation',
+    parameters: {
+      temperature: 273.15,
+      pressure: 101325,
+      iterations: 10000
+    },
+    data: [
+      [1.23, 4.56, 7.89],
+      [2.34, 5.67, 8.90],
+      [3.45, 6.78, 9.01]
+    ],
+    results: {
+      success: true,
+      measurements: [
+        { time: 0.1, velocity: 12.5, acceleration: 9.8 },
+        { time: 0.2, velocity: 13.4, acceleration: 9.7 },
+        { time: 0.3, velocity: 14.2, acceleration: 9.6 }
+      ]
+    }
   }
 }`
         };
@@ -729,16 +945,29 @@ identity: matrix {
                 result += `<div style="margin-left: ${indent * 20}px"><span class="tree-object">}</span></div>`;
                 return result;
             }
-            
-            return String(obj);
+              return String(obj);
         }
 
-        // Update creator settings
+        // Output type switching functions
+        function switchParseOutput() {
+            const isTree = parseOutputType.value === 'tree';
+            jsonOutput.style.display = isTree ? 'none' : 'block';
+            treeOutput.style.display = isTree ? 'block' : 'none';
+        }
+
+        function switchVerifyOutput() {
+            const isTree = verifyOutputType.value === 'tree';
+            verifyOutput.style.display = isTree ? 'none' : 'block';
+            verifyTreeOutput.style.display = isTree ? 'block' : 'none';
+        }// Update creator settings
         function updateCreatorSettings() {
             const settings = {
                 blockStyle: blockStyleSelect.value,
                 tableDelimiter: tableDelimiterSelect.value,
                 quoteKeys: quoteKeysSelect.value,
+                quoteValues: quoteValuesSelect.value,
+                indentType: indentTypeSelect.value,
+                indentSize: parseInt(indentSizeInput.value),
                 arrayThreshold: parseInt(arrayThresholdInput.value),
                 tableThreshold: parseInt(tableThresholdInput.value),
                 fillMissingProperties: fillMissingCheckbox.checked
@@ -746,9 +975,7 @@ identity: matrix {
             
             creator = new TSONCreator(settings);
             createTSON(); // Re-create with new settings
-        }
-
-        // Parse TSON
+        }        // Parse TSON
         function parseTSON() {
             const input = tsonInput.value.trim();
             
@@ -769,6 +996,7 @@ identity: matrix {
                 jsonOutput.textContent = errors.join('\n');
                 jsonOutput.className = 'output-box error-output';
                 treeOutput.innerHTML = '<span class="tree-null">Parse failed</span>';
+                treeOutput.className = 'output-box error-output';
                 return;
             }
             
@@ -781,6 +1009,7 @@ identity: matrix {
                 jsonOutput.textContent = 'Parse failed - check syntax';
                 jsonOutput.className = 'output-box error-output';
                 treeOutput.innerHTML = '<span class="tree-null">Parse failed</span>';
+                treeOutput.className = 'output-box error-output';
                 return;
             }
             
@@ -790,9 +1019,8 @@ identity: matrix {
             jsonOutput.textContent = JSON.stringify(result, null, 2);
             jsonOutput.className = 'output-box json-output';
             treeOutput.innerHTML = renderTree(result);
-        }
-
-        // Create TSON
+            treeOutput.className = 'output-box tree-view';
+        }        // Create TSON
         function createTSON() {
             const input = jsInput.value.trim();
             
@@ -801,6 +1029,7 @@ identity: matrix {
                 createStatus.className = 'status valid';
                 tsonOutput.textContent = '';
                 verifyOutput.textContent = '{}';
+                verifyTreeOutput.innerHTML = 'No data';
                 return;
             }
             
@@ -821,6 +1050,8 @@ identity: matrix {
                 tsonOutput.className = 'output-box';
                 verifyOutput.textContent = JSON.stringify(verifyResult, null, 2);
                 verifyOutput.className = 'output-box json-output';
+                verifyTreeOutput.innerHTML = renderTree(verifyResult);
+                verifyTreeOutput.className = 'output-box tree-view';
                 
             } catch (error) {
                 createStatus.textContent = 'Parse Error';
@@ -829,24 +1060,59 @@ identity: matrix {
                 tsonOutput.className = 'output-box error-output';
                 verifyOutput.textContent = 'Parse failed';
                 verifyOutput.className = 'output-box error-output';
+                verifyTreeOutput.innerHTML = '<span class="tree-null">Parse failed</span>';
+                verifyTreeOutput.className = 'output-box error-output';
             }
-        }
-
-        // Event listeners
+        }        // Event listeners
         tsonInput.addEventListener('input', parseTSON);
         jsInput.addEventListener('input', createTSON);
+        
+        // Output type switching
+        parseOutputType.addEventListener('change', switchParseOutput);
+        verifyOutputType.addEventListener('change', switchVerifyOutput);
         
         // Settings event listeners
         blockStyleSelect.addEventListener('change', updateCreatorSettings);
         tableDelimiterSelect.addEventListener('change', updateCreatorSettings);
         quoteKeysSelect.addEventListener('change', updateCreatorSettings);
+        quoteValuesSelect.addEventListener('change', updateCreatorSettings);
+        indentTypeSelect.addEventListener('change', updateCreatorSettings);
+        indentSizeInput.addEventListener('input', updateCreatorSettings);
         arrayThresholdInput.addEventListener('input', updateCreatorSettings);
         tableThresholdInput.addEventListener('input', updateCreatorSettings);
-        fillMissingCheckbox.addEventListener('change', updateCreatorSettings);
-
-        // Load initial examples
+        fillMissingCheckbox.addEventListener('change', updateCreatorSettings);        // Load initial examples
         loadParseExample('basic');
         loadCreateExample('simple');
     </script>
+    
+    <footer style="background: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; margin-top: 40px;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h3 style="color: #374151; margin-bottom: 15px;">TSON - Typed Structured Object Notation</h3>
+            <p style="color: #6b7280; margin-bottom: 20px; line-height: 1.6;">
+                A human-friendly superset of JSON that supports tables, structured data, and flexible formatting options.
+            </p>
+            
+            <div style="margin-bottom: 20px;">
+                <a href="https://github.com/lampmaker/TSON" target="_blank" 
+                   style="display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 0 10px; font-weight: bold; transition: background-color 0.3s;">
+                    📁 View Repository
+                </a>
+                <a href="https://github.com/lampmaker/TSON/blob/main/README.md" target="_blank" 
+                   style="display: inline-block; background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 0 10px; font-weight: bold; transition: background-color 0.3s;">
+                    📖 Documentation
+                </a>
+                <a href="https://github.com/lampmaker/TSON/issues" target="_blank" 
+                   style="display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 0 10px; font-weight: bold; transition: background-color 0.3s;">
+                    🐛 Report Issues
+                </a>
+            </div>
+            
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; color: #9ca3af; font-size: 0.9em;">
+                <p><strong>⚠️ AI-Generated Project:</strong> This project was created as a test of GitHub Copilot Agent capabilities.</p>
+                <p>99% of the code, documentation, and features are AI-generated. <strong>Use at your own risk!</strong></p>
+                <p style="margin-top: 10px;">Created by <strong>lampmaker</strong> • Licensed under MIT</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

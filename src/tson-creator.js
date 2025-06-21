@@ -1,18 +1,23 @@
-export class TSONCreator {
-  constructor(settings = {}) {
+/*
+ * AI-Generated Project: This project was realized as a test of GitHub Copilot Agent, and as such, 99% of the code, documentation and is AI-generated. It demonstrates the capabilities of AI-assisted software development for creating complete, functional programming language implementations.
+ * IN OTHER WORDS: Use at your own risk — lampmaker
+ * 
+ * GitHub: https://github.com/lampmaker/TSON
+ */
+
+export class TSONCreator {  constructor(settings = {}) {
     this.settings = {
       // Block style preference
       blockStyle: 'indented',           // 'indented' | 'braced' | 'auto'
-      
-      // Delimiters
-      tableDelimiter: 'space',          // 'space' | 'comma' | 'auto'
+        // Delimiters
+      tableDelimiter: 'space',          // 'space' | 'comma' | 'tab' | 'auto'
       rowTerminator: 'none',            // 'none' | 'semicolon'
       
       // Formatting
-      indent: '  ',                     // 2 spaces default
+      indentType: 'spaces',             // 'spaces' | 'tabs'
+      indentSize: 2,                    // number of spaces (ignored for tabs)
       quoteKeys: 'minimal',             // 'minimal' | 'always' | 'never'
-      quoteValues: 'minimal',           // 'minimal' | 'always' | 'never'
-      
+      quoteValues: 'minimal',           // 'minimal' | 'always' | 'never'      
       // Structure detection thresholds
       arrayThreshold: 3,                // Convert to array block if >=3 items
       tableThreshold: 2,                // Convert to table if >=2 objects with shared keys
@@ -23,7 +28,18 @@ export class TSONCreator {
       
       ...settings
     };
-  }  stringify(obj, currentIndent = 0) {
+      // Compute the actual indent string based on settings
+    this.indentString = this.settings.indentType === 'tabs' ? '\t' : ' '.repeat(this.settings.indentSize);
+  }
+
+  _getTableDelimiter() {
+    switch (this.settings.tableDelimiter) {
+      case 'space': return ' ';
+      case 'comma': return ', ';
+      case 'tab': return '\t';
+      default: return ' '; // fallback to space
+    }
+  }stringify(obj, currentIndent = 0) {
     if (obj === null) return 'null';
     if (obj === undefined) return 'null';
     if (typeof obj === 'boolean') return obj.toString();
@@ -43,13 +59,12 @@ export class TSONCreator {
     return JSON.stringify(obj);
   }
 
-  _handleString(str) {
-    // Handle multiline strings as text blocks
+  _handleString(str) {    // Handle multiline strings as text blocks
     if (str.includes('\n')) {
       const lines = str.split('\n');
       let result = 'text {\n';
       lines.forEach(line => {
-        result += this.settings.indent + line + '\n';
+        result += this.indentString + line + '\n';
       });
       result += '}';
       return result;
@@ -155,8 +170,8 @@ export class TSONCreator {
     
     return sharedKeys.length >= 2;
   }  _createArrayBlock(arr, currentIndent) {
-    const indentStr = this.settings.indent.repeat(currentIndent);
-    const itemIndentStr = this.settings.indent.repeat(currentIndent + 1);
+    const indentStr = this.indentString.repeat(currentIndent);
+    const itemIndentStr = this.indentString.repeat(currentIndent + 1);
     
     if (this.settings.blockStyle === 'braced') {
       let result = 'array {\n';
@@ -173,9 +188,9 @@ export class TSONCreator {
     }
   }_createTable(arr, currentIndent) {
     const headers = this._extractHeaders(arr);
-    const delimiter = this.settings.tableDelimiter === 'space' ? ' ' : ', ';
-    const indentStr = this.settings.indent.repeat(currentIndent);
-    const itemIndentStr = this.settings.indent.repeat(currentIndent + 1);
+    const delimiter = this._getTableDelimiter();
+    const indentStr = this.indentString.repeat(currentIndent);
+    const itemIndentStr = this.indentString.repeat(currentIndent + 1);
     
     if (this.settings.blockStyle === 'braced') {
       let result = 'table {\n';
@@ -207,10 +222,9 @@ export class TSONCreator {
       return result.trimEnd();
     }
   }
-
   _createMatrix(arr, currentIndent) {
-    const indentStr = this.settings.indent.repeat(currentIndent);
-    const itemIndentStr = this.settings.indent.repeat(currentIndent + 1);
+    const indentStr = this.indentString.repeat(currentIndent);
+    const itemIndentStr = this.indentString.repeat(currentIndent + 1);
     
     if (this.settings.blockStyle === 'braced') {
       let result = 'matrix {\n';
@@ -225,13 +239,12 @@ export class TSONCreator {
       });
       return result.trimEnd();
     }
-  }
-  _createMaptable(obj, currentIndent) {
+  }  _createMaptable(obj, currentIndent) {
     const values = Object.values(obj);
     const headers = ['key', ...this._extractHeaders(values)];
-    const delimiter = this.settings.tableDelimiter === 'space' ? ' ' : ', ';
-    const indentStr = this.settings.indent.repeat(currentIndent);
-    const itemIndentStr = this.settings.indent.repeat(currentIndent + 1);
+    const delimiter = this._getTableDelimiter();
+    const indentStr = this.indentString.repeat(currentIndent);
+    const itemIndentStr = this.indentString.repeat(currentIndent + 1);
     
     if (this.settings.blockStyle === 'braced') {
       let result = 'maptable {\n';
@@ -323,10 +336,9 @@ export class TSONCreator {
     }
     return null;
   }
-
   _createObjectWithTable(obj, tableKey, currentIndent) {
     const result = [];
-    const indentStr = this.settings.indent.repeat(currentIndent);
+    const indentStr = this.indentString.repeat(currentIndent);
     
     Object.entries(obj).forEach(([key, value]) => {
       const quotedKey = this._shouldQuoteKey(key) ? `"${key}"` : key;
@@ -343,7 +355,7 @@ export class TSONCreator {
     return result.join('\n' + indentStr);
   }  _createRegularObject(obj, currentIndent) {
     const result = [];
-    const indentStr = this.settings.indent.repeat(currentIndent);
+    const indentStr = this.indentString.repeat(currentIndent);
     
     Object.entries(obj).forEach(([key, value]) => {
       const quotedKey = this._shouldQuoteKey(key) ? `"${key}"` : key;
@@ -360,12 +372,18 @@ export class TSONCreator {
         // Check if this nested object should be a maptable
         if (this._canBeMaptable(value)) {
           const maptableStr = this._createMaptable(value, currentIndent + 1);
-          result.push(`${quotedKey}: ${maptableStr}`);
-        } else {
-          // Regular nested object with indentation
-          const nestedObj = this.stringify(value, currentIndent + 1);
-          if (nestedObj.includes('\n') && !nestedObj.startsWith('table') && !nestedObj.startsWith('maptable') && !nestedObj.startsWith('matrix') && !nestedObj.startsWith('array')) {
-            result.push(`${quotedKey}:\n${this.settings.indent.repeat(currentIndent + 1)}${nestedObj.replace(/\n/g, '\n' + this.settings.indent.repeat(currentIndent + 1))}`);
+          result.push(`${quotedKey}: ${maptableStr}`);        } else {
+          // Regular nested object
+          const nestedObj = this.stringify(value, 0); // Get unindented nested object
+          if (nestedObj.includes('\n')) {
+            // For multiline nested objects, put them on the next line with proper indentation
+            const indentedNestedObj = nestedObj.split('\n').map((line, index) => {
+              // Don't indent empty lines
+              if (line.trim() === '') return line;
+              // Add indentation to all lines
+              return this.indentString.repeat(currentIndent + 1) + line;
+            }).join('\n');
+            result.push(`${quotedKey}:\n${indentedNestedObj}`);
           } else {
             result.push(`${quotedKey}: ${nestedObj}`);
           }

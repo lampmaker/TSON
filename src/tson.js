@@ -1,3 +1,10 @@
+/*
+ * AI-Generated Project: This project was realized as a test of GitHub Copilot Agent, and as such, 99% of the code, documentation and is AI-generated. It demonstrates the capabilities of AI-assisted software development for creating complete, functional programming language implementations.
+ * IN OTHER WORDS: Use at your own risk — lampmaker
+ * 
+ * GitHub: https://github.com/lampmaker/TSON
+ */
+
 export class TSONParser {
   constructor() {
     this.lines = [];

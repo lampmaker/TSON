@@ -1,7 +1,11 @@
 # 📘 TSON 2.2 - Typed Structured Object Notation
 
+> **🤖 AI-Generated Project:** This project was realized as a test of GitHub Copilot Agent, and as such, 99% of the code, documentation and is AI-generated. It demonstrates the capabilities of AI-assisted software development for creating complete, functional programming language implementations.
+
+> **⚠️ IN OTHER WORDS: Use at your own risk!**  — lampmaker
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node.js](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
+
 
 TSON (Typed Structured Object Notation) is a **human-friendly, compact superset of JSON** designed for structured data representation. It introduces concise notation for tables, arrays, and blocks while preserving **full compatibility with JSON**.
 
@@ -143,6 +147,7 @@ npm install tson
 ### ES Modules
 ```javascript
 import { TSONParser } from 'tson';
+import { TSONCreator } from 'tson/creator';
 
 const parser = new TSONParser();
 
@@ -297,6 +302,89 @@ Parses TSON text and returns the resulting object. Returns `null` if there are s
 ##### `check(text: string): string[]`
 Validates TSON text and returns an array of error messages. Empty array means valid syntax.
 
+### `TSONCreator`
+
+The TSONCreator class converts JavaScript objects back to TSON format with configurable formatting options.
+
+#### Constructor
+
+```javascript
+import { TSONCreator } from 'tson/creator';
+
+const creator = new TSONCreator({
+  // Indentation settings
+  indentType: 'spaces',    // 'spaces' | 'tabs'
+  indentSize: 2,           // number of spaces (ignored for tabs)
+  
+  // Block formatting
+  blockStyle: 'indented',  // 'indented' | 'braced'
+  
+  // Table formatting
+  tableDelimiter: 'space', // 'space' | 'comma'
+  
+  // Quoting behavior
+  quoteKeys: 'minimal',    // 'minimal' | 'always' | 'never'
+  quoteValues: 'minimal',  // 'minimal' | 'always' | 'never'
+  
+  // Structure detection thresholds
+  arrayThreshold: 3,       // Convert to array block if >=3 items
+  tableThreshold: 2,       // Convert to table if >=2 objects with shared keys
+  
+  // Missing property handling
+  fillMissingProperties: false, // Fill missing table columns with null
+  missingValue: null       // Value to use for missing properties
+});
+```
+
+#### Methods
+
+##### `stringify(obj: any): string`
+Converts a JavaScript object to TSON format.
+
+```javascript
+const creator = new TSONCreator();
+
+const data = {
+  name: 'Alice',
+  age: 30,
+  workdays: { monday: true, tuesday: false },
+  scores: [95, 87, 92]
+};
+
+const tsonString = creator.stringify(data);
+console.log(tsonString);
+// Output:
+// name: Alice
+// age: 30
+// workdays:
+//   monday: true
+//   tuesday: false
+// scores: array
+//   95
+//   87
+//   92
+```
+
+#### Indentation Options
+
+**Spaces (default):**
+```javascript
+const creator = new TSONCreator({ indentType: 'spaces', indentSize: 2 });
+// Output uses 2 spaces for indentation
+```
+
+**Tabs:**
+```javascript
+const creator = new TSONCreator({ indentType: 'tabs' });
+// Output uses tab characters for indentation
+```
+
+**Custom spacing:**
+```javascript
+const creator = new TSONCreator({ indentType: 'spaces', indentSize: 4 });
+// Output uses 4 spaces for indentation
+```
+
 ## 📄 Documentation
 
 - [`docs/tson_2.2.md`](docs/tson_2.2.md) - Complete formal specification and EBNF grammar
@@ -309,38 +397,38 @@ Validates TSON text and returns an array of error messages. Empty array means va
 git clone https://github.com/yourusername/tson.git
 cd tson
 
-# Install dependencies (if any)
-npm install
+# Test the parser and creator
+node test_indentation.js
 
-# Run tests
-npm test
-
-# Start development server
-npm start
+# Open the interactive demo
+# Open index.html in your browser
 ```
 
 ## 📁 Project Structure
 
 ```
 ├── src/
-│   └── tson.js          # Main parser implementation
+│   ├── tson.js          # Main TSON parser
+│   └── tson-creator.js  # TSON creator for bidirectional conversion
 ├── docs/
 │   ├── tson_2.2.md      # Formal specification
-│   └── tsonspec.txt     # EBNF grammar
+│   ├── REVISIONS.md     # Version history
+│   └── changes.txt      # Change log
 ├── test/
-│   └── test.js          # Test suite
-├── index.html           # Browser demo
+├── index.html           # Interactive browser demo
 ├── package.json
+├── changes.txt          # Change log
+├── TESTING_GUIDE.md     # Testing instructions
 └── README.md
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## 🔗 Related
 
@@ -351,3 +439,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **TSON 2.2** - Making structured data more human-friendly while staying JSON-compatible.
+

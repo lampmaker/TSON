@@ -1,9 +1,17 @@
 {
   "name": "tson",
-  "version": "2.2.7",
+  "version": "2.2.9",
   "description": "TSON (Typed Structured Object Notation) - A human-friendly superset of JSON",
   "type": "module",
-  "main": "src/tson.js",  "scripts": {
+  "main": "src/tson.js",
+  "exports": {
+    ".": {
+      "import": "./src/tson.js"
+    },
+    "./creator": {
+      "import": "./src/tson-creator.js"
+    }
+  },"scripts": {
       "start": "node index.html"
   },
   "keywords": [
