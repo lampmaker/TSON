@@ -147,6 +147,13 @@ name: "Alice"        # Instead of "name": "Alice"
 age: 30             # Numbers, booleans auto-parsed
 ```
 
+#### Comments
+```tson
+# Full-line comments
+  # Indented comments also work
+name: "Alice"
+```
+
 #### Type Declarations
 - `array { ... }` - Collection of values
 - `table { ... }` - Tabular data with headers
@@ -171,9 +178,10 @@ Parses TSON text and returns the resulting object. Returns `null` if there are s
 ##### `check(text: string): string[]`
 Validates TSON text and returns an array of error messages. Empty array means valid syntax.
 
-## 📄 Grammar
+## 📄 Documentation
 
-See [`docs/tson_2.2.md`](docs/tson_2.2.md) for the complete formal specification and EBNF grammar.
+- [`docs/tson_2.2.md`](docs/tson_2.2.md) - Complete formal specification and EBNF grammar
+- [`docs/REVISIONS.md`](docs/REVISIONS.md) - Version history and change tracking
 
 ## 🧪 Development
 
