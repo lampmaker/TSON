@@ -91,3 +91,35 @@ All improvements have comprehensive test coverage:
 4. **Safe text handling**: No ambiguity with multiline text containing special characters
 5. **Matrix support**: Clean representation of numerical 2D arrays
 6. **User control**: Extensive configuration options for different use cases
+
+## Critical Formatting Fix (v2.2.4+)
+
+### Block Type Declaration Placement
+The TSONCreator now correctly formats block types according to TSON specification:
+
+```tson
+# ✅ CORRECT - Block type immediately after colon
+robots: maptable
+  key shape speed
+  fast circle 10
+  slow square 5
+
+data: table
+  name score
+  Alice 95
+  Bob 87
+
+# ❌ INCORRECT - Would cause parser errors  
+robots:
+  maptable
+    key shape speed
+    fast circle 10
+```
+
+**What was fixed:**
+- Block types now appear directly after the colon (`key: blocktype`)
+- Eliminates newlines between key and block type declaration
+- Ensures all generated TSON is valid and parseable
+- Affects nested maptables, tables, matrices, and array blocks
+
+**Impact:** Generated TSON now strictly conforms to the TSON 2.2 specification and will parse correctly in all TSON parsers.

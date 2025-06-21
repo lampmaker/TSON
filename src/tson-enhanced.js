@@ -43,10 +43,7 @@ export class TSONParser {
           this.errors.push(`Unexpected closing brace at line ${this.lineIndex + 1}`);
         }
         this.lineIndex++;
-        continue;      }      // FIXED: Always check indentation context before processing any line
-      this._adjustContextStack(indent);
-
-      if (trimmed.includes(":")) {
+        continue;      }      if (trimmed.includes(":")) {
         // Handle comma-separated pairs on the same line (JSON style)
         const pairs = this._splitPairs(trimmed);
         for (const pair of pairs) {
@@ -57,7 +54,7 @@ export class TSONParser {
         }
       } else {
         this._processContinuation(indent, trimmed);
-      }this.lineIndex++;
+      }      this.lineIndex++;
     }
 
     // Finalize any remaining typed blocks at end of file
@@ -180,9 +177,13 @@ export class TSONParser {
     
     const type = ctx.type;
 
-    // Handle non-typed contexts (regular objects)
+    // Handle indented object context or find correct context based on indentation
     if (!type || ctx.indentedObject) {
-      // Process this line in the correct context
+      // Pop contexts until we find the right indentation level
+      while (this.contextStack.length > 1 && this.contextStack[this.contextStack.length - 1].indent >= indent) {
+        this.contextStack.pop();
+      }
+        // Process this line in the correct context
       if (trimmed && trimmed.includes(":")) {
         const pairs = this._splitPairs(trimmed);
         for (const pair of pairs) {
@@ -203,7 +204,9 @@ export class TSONParser {
     }
 
     if (type === "array") {
-      ctx.value[ctx.targetKey].push(this._autoConvert(trimmed));
+      // Enhanced array handling for objects
+      const value = this._parseArrayValue(trimmed);
+      ctx.value[ctx.targetKey].push(value);
       return;
     }    // Handle table/matrix/maptable data
     const line = trimmed.replace(/;$/, "");
@@ -460,40 +463,100 @@ export class TSONParser {
       }
     }
   }
-
-  // FIXED: Properly adjust context stack based on indentation
-  _adjustContextStack(currentIndent) {
-    // Don't pop the root context (index 0)
-    while (this.contextStack.length > 1) {
-      const ctx = this.contextStack[this.contextStack.length - 1];
-      
-      // Check if we should pop this context
-      if (this._shouldPopContext(ctx, currentIndent)) {
-        // Finalize typed blocks before popping
-        if (ctx.type && ctx.type !== "text") {
-          this._finalizeTypedBlock(ctx);
-        }
-        this.contextStack.pop();
-      } else {
-        break;
+  _parseArrayValue(value) {
+    const trimmed = value.trim();
+    
+    // Handle JSON objects (both quoted and unquoted keys)
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        // Try to parse as standard JSON first
+        return JSON.parse(trimmed);
+      } catch (e) {
+        // If that fails, try to parse TSON-style unquoted keys
+        return this._parseTSONObject(trimmed);
       }
     }
+    
+    // Handle JSON arrays
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch (e) {
+        // Fall back to original parsing
+        return this._parseValue(trimmed);
+      }
+    }
+    
+    // Fall back to original auto-convert
+    return this._autoConvert(trimmed);
   }
 
-  // FIXED: Determine if a context should be popped based on indentation
-  _shouldPopContext(ctx, currentIndent) {
-    // For typed blocks (array, table, etc.), only pop when explicitly closed or at same/lower indent
-    if (ctx.type && !ctx.indentedObject && !ctx.indentedBlock) {
-      return false; // Braced blocks are only closed by explicit braces
+  _parseTSONObject(objectStr) {
+    // Parse TSON-style object with unquoted keys like {state:4}
+    const content = objectStr.slice(1, -1).trim(); // Remove braces
+    const result = {};
+    
+    if (!content) return result;
+    
+    // Split by commas, but respect nested structures
+    const pairs = this._splitObjectPairs(content);
+    
+    for (const pair of pairs) {
+      const colonIndex = pair.indexOf(':');
+      if (colonIndex > 0) {
+        const key = pair.substring(0, colonIndex).trim();
+        const value = pair.substring(colonIndex + 1).trim();
+        
+        // Clean key (remove quotes if present)
+        const cleanKey = this._cleanKey(key);
+        
+        // Parse value recursively
+        result[cleanKey] = this._parseArrayValue(value);
+      }
     }
     
-    // For indented objects or indented typed blocks
-    if (ctx.indentedObject || ctx.indentedBlock) {
-      // Pop if current line is at same or lower indentation than the context
-      return currentIndent <= ctx.indent;
-    }
-    
-    // For regular object contexts, pop if at same or lower indentation
-    return currentIndent <= ctx.indent;
+    return result;
   }
+
+  _splitObjectPairs(content) {
+    // Split object content by commas, respecting nested structures
+    const pairs = [];
+    let current = '';
+    let depth = 0;
+    let inQuotes = false;
+    let quoteChar = '';
+    
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i];
+      
+      if (!inQuotes && (char === '"' || char === "'")) {
+        inQuotes = true;
+        quoteChar = char;
+        current += char;
+      } else if (inQuotes && char === quoteChar) {
+        inQuotes = false;
+        current += char;
+      } else if (!inQuotes && (char === '{' || char === '[')) {
+        depth++;
+        current += char;
+      } else if (!inQuotes && (char === '}' || char === ']')) {
+        depth--;
+        current += char;
+      } else if (!inQuotes && char === ',' && depth === 0) {
+        if (current.trim()) {
+          pairs.push(current.trim());
+        }
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    if (current.trim()) {
+      pairs.push(current.trim());
+    }
+    
+    return pairs;
+  }
+
 }

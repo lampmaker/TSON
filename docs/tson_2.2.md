@@ -91,6 +91,40 @@ content: text {
 
 ## Syntax Rules
 
+### Block Type Declaration Format
+**Critical Rule:** Block type declarations must appear **immediately after the colon** on the same line:
+
+```tson
+# ✅ CORRECT SYNTAX
+key: blocktype {
+  content...
+}
+
+# Examples:
+robots: maptable {
+  id shape speed
+  fast circle 10
+}
+
+scores: table {
+  name grade
+  Alice 95
+}
+
+data: matrix {
+  1 2 3
+  4 5 6
+}
+
+# ❌ INCORRECT SYNTAX - Parser Error
+key:
+  blocktype {
+    content...
+  }
+```
+
+**Rationale:** This syntax requirement ensures unambiguous parsing. The block type is part of the value assignment, not a separate statement.
+
 ### Types
 - `object:` (default)
 - `array:`

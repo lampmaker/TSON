@@ -164,8 +164,7 @@ export class TSONCreator {
         result += itemIndentStr + this.stringify(item, currentIndent + 1) + '\n';
       });
       result += indentStr + '}';
-      return result;
-    } else {
+      return result;    } else {
       let result = 'array\n';
       arr.forEach(item => {
         result += itemIndentStr + this.stringify(item, currentIndent + 1) + '\n';
@@ -192,8 +191,7 @@ export class TSONCreator {
       });
       
       result += indentStr + '}';
-      return result;
-    } else {
+      return result;    } else {
       let result = 'table\n';
       result += itemIndentStr + headers.join(delimiter) + '\n';
       
@@ -220,8 +218,7 @@ export class TSONCreator {
         result += itemIndentStr + row.join(' ') + '\n';
       });
       result += indentStr + '}';
-      return result;
-    } else {
+      return result;    } else {
       let result = 'matrix\n';
       arr.forEach(row => {
         result += itemIndentStr + row.join(' ') + '\n';
@@ -251,8 +248,7 @@ export class TSONCreator {
       });
       
       result += indentStr + '}';
-      return result;
-    } else {
+      return result;    } else {
       let result = 'maptable\n';
       result += itemIndentStr + headers.join(delimiter) + '\n';
       
@@ -345,22 +341,34 @@ export class TSONCreator {
     });
     
     return result.join('\n' + indentStr);
-  }
-
-  _createRegularObject(obj, currentIndent) {
+  }  _createRegularObject(obj, currentIndent) {
     const result = [];
     const indentStr = this.settings.indent.repeat(currentIndent);
     
     Object.entries(obj).forEach(([key, value]) => {
       const quotedKey = this._shouldQuoteKey(key) ? `"${key}"` : key;
       
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        // Nested object with indentation
-        const nestedObj = this.stringify(value, currentIndent + 1);
-        if (nestedObj.includes('\n')) {
-          result.push(`${quotedKey}:\n${this.settings.indent.repeat(currentIndent + 1)}${nestedObj.replace(/\n/g, '\n' + this.settings.indent.repeat(currentIndent + 1))}`);
+      if (Array.isArray(value)) {
+        // Handle arrays (might be tables or matrices)
+        const arrayStr = this.stringify(value, currentIndent + 1);
+        if (arrayStr.startsWith('table') || arrayStr.startsWith('matrix') || arrayStr.startsWith('array')) {
+          result.push(`${quotedKey}: ${arrayStr}`);
         } else {
-          result.push(`${quotedKey}: ${nestedObj}`);
+          result.push(`${quotedKey}: ${arrayStr}`);
+        }
+      } else if (typeof value === 'object' && value !== null) {
+        // Check if this nested object should be a maptable
+        if (this._canBeMaptable(value)) {
+          const maptableStr = this._createMaptable(value, currentIndent + 1);
+          result.push(`${quotedKey}: ${maptableStr}`);
+        } else {
+          // Regular nested object with indentation
+          const nestedObj = this.stringify(value, currentIndent + 1);
+          if (nestedObj.includes('\n') && !nestedObj.startsWith('table') && !nestedObj.startsWith('maptable') && !nestedObj.startsWith('matrix') && !nestedObj.startsWith('array')) {
+            result.push(`${quotedKey}:\n${this.settings.indent.repeat(currentIndent + 1)}${nestedObj.replace(/\n/g, '\n' + this.settings.indent.repeat(currentIndent + 1))}`);
+          } else {
+            result.push(`${quotedKey}: ${nestedObj}`);
+          }
         }
       } else {
         result.push(`${quotedKey}: ${this.stringify(value, currentIndent + 1)}`);

@@ -4,15 +4,7 @@
   "description": "TSON (Typed Structured Object Notation) - A human-friendly superset of JSON",
   "type": "module",
   "main": "src/tson.js",  "scripts": {
-    "test": "node test/test.js",
-    "test:comprehensive": "node test/comprehensive-test.js",
-    "test:errors": "node test/error-test.js",
-    "test:indented": "node test/indented-test.js",
-    "test:creator": "node test/creator-improvements-test.js",
-    "test:edge-cases": "node test/edge-cases-test.js",
-    "test:text-blocks": "node test/text-blocks-test.js",
-    "test:all": "npm test && npm run test:comprehensive && npm run test:indented && npm run test:errors && npm run test:creator",
-    "start": "node index.html"
+      "start": "node index.html"
   },
   "keywords": [
     "json",

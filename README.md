@@ -194,6 +194,38 @@ if (errors.length === 0) {
 
 ## 📋 Syntax Rules
 
+### Block Type Formatting
+**Critical:** Block types must be placed **directly after the colon** with no line breaks:
+
+```tson
+# ✅ CORRECT - Block type immediately follows colon
+robots: maptable {
+  key shape speed
+  fast circle 10
+  slow square 5
+}
+
+scores: table {
+  name grade
+  Alice 95
+  Bob 87
+}
+
+matrix: matrix {
+  1 2 3
+  4 5 6
+}
+
+# ❌ INCORRECT - Block type on new line
+robots:
+  maptable {
+    key shape speed
+    fast circle 10
+  }
+```
+
+**Why this matters:** TSON parsers expect the block type declaration to be part of the key-value assignment. Placing it on a new line creates ambiguous syntax.
+
 ### JSON Compatibility
 - All standard JSON syntax works unchanged
 - Objects: `{ "key": "value" }`
